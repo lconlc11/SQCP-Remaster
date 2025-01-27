@@ -11,6 +11,7 @@ class App {
 
     this.configureLogger();
     this.configureExpress();
+    this.configureFTPRoutes();
     this.configureRoutes();
     this.startExpress();
   }
