@@ -5,30 +5,15 @@ const MODE = 'production';
 const Config = {
   MODE,
 
-  
-    RCON: [
-      {
-        name: 'Server1',
-        host: process.env.RCON_HOST_SERVER1 || '127.0.0.1',
-        password: process.env.RCON_PASSWORD_SERVER1 || '',
-        port: process.env.RCON_PORT_SERVER1 || 27028,
-      },
-      {
-        name: 'Server2',
-        host: process.env.RCON_HOST_SERVER2 || '127.0.0.2',
-        password: process.env.RCON_PASSWORD_SERVER2 || '',
-        port: process.env.RCON_PORT_SERVER2 || 27029,
-      },
-    ]
-    ,
+  RCON: {
+    host: process.env.RCON_HOST || 'localhost',
+    password: process.env.RCON_PASSWORD || 'password',
+    port: process.env.RCON_PORT || 21114,
+  },
 
   DATABASE: {
-    host: Database[MODE].host,
-    user: Database[MODE].username,
-    password: Database[MODE].password,
-    database: Database[MODE].database,
-    dialect: Database[MODE].dialect,
-    port: Database[MODE].port,
+    development_server1: Database.development_server1,
+    development_server2: Database.development_server2,
   },
 
   LOGGER_MODULES: {

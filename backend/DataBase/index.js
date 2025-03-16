@@ -6,40 +6,37 @@ const Logger = require('../Utils/Logger');
 // Connection CLass
 class Connection {
   constructor() {
-    this.establish();
-    this.auth();
+    this.connections = {};
   }
 
-  establish() {
-    this.connection = new Sequelize(Config.DATABASE.database, Config.DATABASE.user, Config.DATABASE.password, {
-      host: Config.DATABASE.host,
-      port: Config.DATABASE.port,
-      dialect: Config.DATABASE.dialect,
-      logging: Config.MODE === 'production' ? false : true,
-
-      pool: {
-        max: 10,
-        min: 0,
-        acquire: 30000,
-        idle: 10000,
-      },
-    });
+  async init() {
+    await Connection.establish();
   }
 
-  auth() {
-    this.connection
-      .authenticate()
-      .then(() => Logger.verbose('DataBase', 1, 'Data Base Connection Successfully Established'))
-      .catch((error) => {
-        Logger.verbose('DataBase', 1, `Failed to connect to the Data Base: ${error}`);
-        process.exit(0);
-      });
+  static async establish() {
+    for (const [serverKey, serverConfig] of Object.entries({
+      development_server1: Config.DATABASE.development_server1,
+      development_server2: Config.DATABASE.development_server2
+    })) {
+      try {
+        const sequelize = new Sequelize(serverConfig.database, serverConfig.username, serverConfig.password, {
+          host: serverConfig.host,
+          dialect: serverConfig.dialect,
+          port: serverConfig.port,
+          logging: false
+        });
+        await sequelize.authenticate();
+        console.log(`Connection to ${serverKey} established successfully.`);
+      } catch (error) {
+        console.error(`Unable to connect to ${serverKey}:`, error);
+      }
+    }
   }
 
-  getConnection() {
-    return this.connection;
+  getConnection(serverKey) {
+    return this.connections[serverKey];
   }
 }
 
 // Module Exports
-module.exports = new Connection().getConnection();
+module.exports = new Connection();

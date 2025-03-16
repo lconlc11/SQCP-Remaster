@@ -1,15 +1,25 @@
 <template>
   <v-app>
     <AppBar v-bind:display-menu="shouldDisplayMenu" />
-
     <v-main>
-      <router-view></router-view>
+      <v-container fluid class="pa-0">
+        <div>
+          <select v-model="selectedServer">
+            <option value="server1">Server 1</option>
+            <option value="server2">Server 2</option>
+          </select>
+          <button @click="connectToServer">Connect</button>
+          <button @click="retryConnection">Retry</button>
+          <p>{{ connectionStatus }}</p>
+        </div>
+        <router-view></router-view>
+      </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import AppBar from './components/AppBar';
+import AppBar from './components/AppBar.vue';
 
 export default {
   name: 'App',
@@ -18,10 +28,35 @@ export default {
     AppBar,
   },
 
+  data() {
+    return {
+      selectedServer: 'server1',
+      connectionStatus: ''
+    };
+  },
+
   computed: {
     shouldDisplayMenu() {
       return this.$route.path.includes('login') ? 'no' : 'yes';
     },
+  },
+
+  methods: {
+    async connectToServer() {
+      try {
+        const response = await fetch(`/api/connect?server=${this.selectedServer}`);
+        if (response.ok) {
+          this.connectionStatus = 'Connected successfully!';
+        } else {
+          this.connectionStatus = 'Connection failed.';
+        }
+      } catch (error) {
+        this.connectionStatus = 'Error connecting to server.';
+      }
+    },
+    retryConnection() {
+      this.connectToServer();
+    }
   },
 
   beforeUpdate() {

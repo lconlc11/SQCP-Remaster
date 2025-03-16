@@ -4,6 +4,7 @@ const Config = require('./Config');
 const Cors = require('cors');
 const Path = require('path');
 const History = require('connect-history-api-fallback');
+const Connection = require('./DataBase');
 
 class App {
   constructor() {
@@ -11,8 +12,6 @@ class App {
 
     this.configureLogger();
     this.configureExpress();
-    this.configureFTPRoutes();
-    this.configureRoutes();
     this.startExpress();
   }
 
@@ -32,7 +31,6 @@ class App {
 
     // Router
     this.express.use(Express.json());
-    require('./Routes')(this.express);
 
     // Static files
     this.express.use('/js', Express.static(Path.join(__dirname, '/dist/js')));
@@ -47,7 +45,10 @@ class App {
     this.express.use('/', Express.static(Path.join(__dirname, '/dist')));
   }
 
-  startExpress() {
+  async startExpress() {
+    await Connection.init();
+    require('./Models');
+    require('./Routes')(this.express);
     this.express.listen(Config.EXPRESS_PORT, () =>
       Logger.verbose('Express', 1, `Listening on port: ${Config.EXPRESS_PORT}`)
     );
